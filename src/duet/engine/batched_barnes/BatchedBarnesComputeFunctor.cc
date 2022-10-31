@@ -19,13 +19,13 @@ void BatchedBarnesComputeFunctor::setup() {
       lane->get_engine()->template get_constant<Double>(caller_id, "pos0y");
   _pos0z_ci =
       lane->get_engine()->template get_constant<Double>(caller_id, "pos0z");
-  _pos0w_ci =
-      lane->get_engine()->template get_constant<Double>(caller_id, "pos0w");
+  _epssq_ci =
+      lane->get_engine()->template get_constant<Double>(caller_id, "epssq");
 }
 
 void BatchedBarnesComputeFunctor::run() {
   kernel(*_chan_input, *_chan_output, _pos0x_ci, _pos0y_ci, _pos0z_ci,
-         _pos0w_ci);
+         _epssq_ci);
 }
 
 }  // namespace duet

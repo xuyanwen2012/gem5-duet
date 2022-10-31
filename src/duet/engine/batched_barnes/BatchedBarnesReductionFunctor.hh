@@ -15,31 +15,38 @@ namespace duet {
 class BatchedBarnesReductionFunctor : public DuetFunctor {
  public:
 #pragma hls_design top
-  void kernel(ac_channel<Block<16>>& chan_input, const Double& result_ci,
-              Double& result_co) {
-    Double min_[2] = {result_ci, result_ci};
+  void kernel(ac_channel<Block<48>>& chan_input, const Double& accx_ci,
+              const Double& accy_ci, const Double& accz_ci, Double& accx_co,
+              Double& accy_co, Double& accz_co) {
+    Double ci[3] = {accx_ci, accy_ci, accz_ci};
 
     // 16 times
     for (int i = 0; i < 16; ++i) {
-      Block<16> tmp;
+      Block<48> tmp;  // Each tmp contains two particles.
       dequeue_data(chan_input, tmp);
 
 #pragma unroll yes
-      for (int j = 0; j < 2; ++j) {
-        Double din;
-        unpack(tmp, j, din);
-        min_[j] = MIN(min_[j], din);
+      for (int j = 0; j < 3; j++) {
+        Double inc;
+        Double inc2;
+        unpack(tmp, j, inc);
+        unpack(tmp, j + 3, inc2);
+        ci[j] += inc + inc2;
       }
     }
 
-    result_co = MIN(min_[0], min_[1]);
+    accx_co = ci[0];
+    accy_co = ci[1];
+    accz_co = ci[2];
   }
 
 #ifndef __DUET_HLS
  private:
   chan_data_t* _chan_input;
 
-  Double _result;
+  Double _accx;
+  Double _accy;
+  Double _accz;
 
  protected:
   void run() override final;

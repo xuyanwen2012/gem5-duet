@@ -10,19 +10,23 @@ void BatchedBarnesReductionFunctor::setup() {
   chan_id_t id = {chan_id_t::PULL, 0};
   _chan_input = &get_chan_data(id);
 
-  _result =
-      lane->get_engine()->template get_constant<Double>(caller_id, "result");
+  _accx = lane->get_engine()->template get_constant<Double>(caller_id, "accx");
+  _accy = lane->get_engine()->template get_constant<Double>(caller_id, "accy");
+  _accz = lane->get_engine()->template get_constant<Double>(caller_id, "accz");
 }
 
 void BatchedBarnesReductionFunctor::run() {
-  Double tmp[1];
-  kernel(*_chan_input, _result, tmp[0]);
-  _result = tmp[0];
+  Double tmp[3];
+  kernel(*_chan_input, _accx, _accy, _accz, tmp[0], tmp[1], tmp[2]);
+  _accx = tmp[0];
+  _accy = tmp[1];
+  _accz = tmp[2];
 }
 
 void BatchedBarnesReductionFunctor::finishup() {
-  lane->get_engine()->template set_constant<Double>(caller_id, "result",
-                                                    _result);
+  lane->get_engine()->template set_constant<Double>(caller_id, "accx", _accx);
+  lane->get_engine()->template set_constant<Double>(caller_id, "accy", _accy);
+  lane->get_engine()->template set_constant<Double>(caller_id, "accz", _accz);
 
   uint64_t cnt =
       lane->get_engine()->template get_constant<uint64_t>(caller_id, "cnt");

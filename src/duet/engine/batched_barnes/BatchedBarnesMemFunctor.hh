@@ -17,7 +17,7 @@ class BatchedBarnesMemFunctor : public DuetFunctor {
     dequeue_data(chan_arg, nodeptr);  // 0
 
     // assume >= 64B cache line size:
-    // load pos[0] = +8, pos[1] = +16, pos[2] = +24, pos[] = +32
+    // load pos[0] = +8, pos[1] = +16, pos[2] = +24, mass = +32
 
     // Loading 32 particles at once
     for (int i = 0; i < 1024; i += 64) {

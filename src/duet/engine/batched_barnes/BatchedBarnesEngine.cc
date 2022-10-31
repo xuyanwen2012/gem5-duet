@@ -21,7 +21,12 @@ unsigned BatchedBarnesEngine::get_max_stats_exectime() const { return 2000; }
 
 bool BatchedBarnesEngine::handle_softreg_write(
     DuetEngine::softreg_id_t softreg_id, uint64_t value) {
-  if (softreg_id < num_softreg_per_caller || softreg_id >= get_num_softregs())
+  // 0: epssq
+  if (0 == softreg_id) {
+    set_constant("epssq", value);
+    return true;
+  } else if (softreg_id < num_softreg_per_caller ||
+             softreg_id >= get_num_softregs())
     return true;
 
   // starting from 16, 16 registers per caller ( but only 9 are useful )
@@ -49,18 +54,19 @@ bool BatchedBarnesEngine::handle_softreg_write(
       set_constant(caller_id, "pos0z", value);
       return true;
 
-    case 4:  // w
-      set_constant(caller_id, "pos0w", value);
-      return true;
-
-    default:  // cnt, result
+    default:  // cnt, accx, accy, accz
       return true;
   }
 }
 
 bool BatchedBarnesEngine::handle_softreg_read(
     DuetEngine::softreg_id_t softreg_id, uint64_t& value) {
-  if (softreg_id < num_softreg_per_caller || softreg_id >= get_num_softregs()) {
+  // 0: epssq
+  if (0 == softreg_id) {
+    value = get_constant<uint64_t>(0, "epssq");
+    return true;
+  } else if (softreg_id < num_softreg_per_caller ||
+             softreg_id >= get_num_softregs()) {
     value = 0;
     return true;
   }
@@ -85,17 +91,25 @@ bool BatchedBarnesEngine::handle_softreg_read(
       value = get_constant<uint64_t>(caller_id, "pos0z");
       return true;
 
-    case 4:  // pos0w
-      value = get_constant<uint64_t>(caller_id, "pos0w");
-      return true;
-
-    case 5:  // cnt
+    case 4:  // cnt
       value = get_constant<uint64_t>(caller_id, "cnt");
       return true;
 
-    case 6:  // result
-      value = get_constant<uint64_t>(caller_id, "result");
-      set_constant(caller_id, "result", double(999999.f));
+    case 5:  // accx
+      value = get_constant<uint64_t>(caller_id, "accx");
+      set_constant(caller_id, "accx", double(0.0f));
+      set_constant<uint64_t>(caller_id, "cnt", 0);
+      return true;
+
+    case 6:  // accy
+      value = get_constant<uint64_t>(caller_id, "accy");
+      set_constant(caller_id, "accy", double(0.0f));
+      set_constant<uint64_t>(caller_id, "cnt", 0);
+      return true;
+
+    case 7:  // accz
+      value = get_constant<uint64_t>(caller_id, "accz");
+      set_constant(caller_id, "accz", double(0.0f));
       set_constant<uint64_t>(caller_id, "cnt", 0);
       return true;
 
@@ -113,8 +127,12 @@ void BatchedBarnesEngine::init() {
   for (DuetFunctor::caller_id_t caller_id = 0; caller_id < get_num_callers();
        ++caller_id) {
     set_constant<uint64_t>(caller_id, "cnt", 0);
-    set_constant(caller_id, "result", double(999999.f));
+    set_constant(caller_id, "accx", double(0.0f));
+    set_constant(caller_id, "accy", double(0.0f));
+    set_constant(caller_id, "accz", double(0.0f));
   }
+
+  set_constant("epssq", double(0.0f));
 }
 
 }  // namespace duet
