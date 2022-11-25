@@ -37,19 +37,23 @@ bool DuetNNEngine::handle_softreg_write(DuetEngine::softreg_id_t softreg_id,
         return false;
       }
 
-    case 1:  // pos0x
+    case 1:  // out_addr
+      set_constant(caller_id, "out_addr", value);
+      return true;
+
+    case 2:  // pos0x
       set_constant(caller_id, "pos0x", value);
       return true;
 
-    case 2:  // pos0y
+    case 3:  // pos0y
       set_constant(caller_id, "pos0y", value);
       return true;
 
-    case 3:  // pos0z
+    case 4:  // pos0z
       set_constant(caller_id, "pos0z", value);
       return true;
 
-    case 4:  // w
+    case 5:  // w
       set_constant(caller_id, "pos0w", value);
       return true;
 
@@ -74,29 +78,31 @@ bool DuetNNEngine::handle_softreg_read(DuetEngine::softreg_id_t softreg_id,
     case 0:  // ret
       return handle_retchan_pull(caller_id, value);
 
-    case 1:  // pos0x
+    case 1:  // out_addr
+      value = get_constant<uint64_t>(caller_id, "out_addr");
+      return true;
+
+    case 2:  // pos0x
       value = get_constant<uint64_t>(caller_id, "pos0x");
       return true;
 
-    case 2:  // pos0y
+    case 3:  // pos0y
       value = get_constant<uint64_t>(caller_id, "pos0y");
       return true;
 
-    case 3:  // pos0z
+    case 4:  // pos0z
       value = get_constant<uint64_t>(caller_id, "pos0z");
       return true;
 
-    case 4:  // pos0w
+    case 5:  // pos0w
       value = get_constant<uint64_t>(caller_id, "pos0w");
       return true;
 
-    case 5:  // cnt
+    case 6:  // cnt
       value = get_constant<uint64_t>(caller_id, "cnt");
       return true;
 
-    case 6:  // result
-      value = get_constant<uint64_t>(caller_id, "result");
-      set_constant(caller_id, "result", double(999999.f));
+    case 7:  // result
       set_constant<uint64_t>(caller_id, "cnt", 0);
       return true;
 
@@ -114,7 +120,7 @@ void DuetNNEngine::init() {
   for (DuetFunctor::caller_id_t caller_id = 0; caller_id < get_num_callers();
        ++caller_id) {
     set_constant<uint64_t>(caller_id, "cnt", 0);
-    set_constant(caller_id, "result", double(999999.f));
+    // set_constant(caller_id, "result", double(999999.f));
   }
 }
 

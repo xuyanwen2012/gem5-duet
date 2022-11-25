@@ -14,35 +14,37 @@ namespace duet {
 
 class DuetNNReductionFunctor : public DuetFunctor {
  public:
-#pragma hls_design top
-  void kernel(
-          ac_channel<Block<16>>& chan_input,
-          const Double& result_ci,
-          Double& result_co)
-  {
-    Double min_[2] = {result_ci, result_ci};
+// #pragma hls_design top
+//   void kernel(
+//           ac_channel<Block<16>>& chan_input,
+//           const Double& result_ci,
+//           Double& result_co)
+//   {
+//     Double min_[2] = {result_ci, result_ci};
 
-    // 16 times
-    for (int i = 0; i < 16; ++i ) {
-        Block<16> tmp;
-        dequeue_data ( chan_input, tmp );
+//     // 16 times
+//     for (int i = 0; i < 16; ++i ) {
+//         Block<16> tmp;
+//         dequeue_data ( chan_input, tmp );
 
-        #pragma unroll yes
-        for ( int j = 0; j < 2; ++j ) {
-            Double din;
-            unpack ( tmp, j, din );
-            min_[j] = MIN (min_[j], din);
-        }
-    }
+//         #pragma unroll yes
+//         for ( int j = 0; j < 2; ++j ) {
+//             Double din;
+//             unpack ( tmp, j, din );
+//             min_[j] = MIN (min_[j], din);
+//         }
+//     }
 
-    result_co = MIN (min_[0], min_[1]);
-  }
+//     result_co = MIN (min_[0], min_[1]);
+//   }
 
 #ifndef __DUET_HLS
  private:
   chan_data_t* _chan_input;
-
-  Double _result;
+  chan_req_t * _chan_req;
+  chan_data_t* _chan_wdata;
+  addr_t _out_addr;
+  // Double _result;
 
  protected:
   void run() override final;
