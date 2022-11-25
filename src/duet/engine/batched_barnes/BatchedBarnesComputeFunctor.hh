@@ -46,21 +46,30 @@ class BatchedBarnesComputeFunctor : public DuetFunctor {
     for (int i = 0; i < 2; ++i) {
       Double diff[3];
       Double drsq = epssq_ci;
-      Double inv_dist = 0.0f;
-      Double inv_dist3 = 0.0f;
+      Double inv_dist = 0.0;
+      Double inv_dist3 = 0.0;
+
+      // Check if the data is meaningful. Currently we use negative
+      // 'pos.data[0]' values to represent meaningless input data.
+      if (pos[i][0] < 0.0) {
+#pragma unroll yes
+        for (int j = 0; j < 3; ++j) {
+          acc[i][j] = 0.0;
+        }
+      } else {
+#pragma unroll yes
+        for (int j = 0; j < 3; ++j) {
+          diff[j] = pos[i][j] - pos0[j];
+          drsq += diff[j] * diff[j];
+        }
+
+        inv_dist = 1.0 / sqrt(drsq);
+        inv_dist3 = inv_dist * inv_dist * inv_dist;
 
 #pragma unroll yes
-      for (int j = 0; j < 3; ++j) {
-        diff[j] = pos[i][j] - pos0[j];
-        drsq += diff[j] * diff[j];
-      }
-
-      inv_dist = 1.0 / sqrt(drsq);
-      inv_dist3 = inv_dist * inv_dist * inv_dist;
-
-#pragma unroll yes
-      for (int j = 0; j < 3; ++j) {
-        acc[i][j] = diff[j] * inv_dist3 * mass[i];
+        for (int j = 0; j < 3; ++j) {
+          acc[i][j] = diff[j] * inv_dist3 * mass[i];
+        }
       }
     }
 
