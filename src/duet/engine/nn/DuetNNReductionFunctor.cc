@@ -4,6 +4,8 @@
 #include "duet/engine/DuetLane.hh"
 
 #include <iostream>
+#include <algorithm>
+#include <array>
 
 namespace gem5 {
 namespace duet {
@@ -19,38 +21,49 @@ void DuetNNReductionFunctor::setup() {
   _chan_wdata = &get_chan_data ( id );
 
   _out_addr =
-      lane->get_engine()->template get_constant<addr_t>(caller_id, "out_addr");
+      lane->get_engine()->template get_constant<uint64_t>(caller_id, "out_addr");
 }
 
 void DuetNNReductionFunctor::run() {
   std::cout << "void DuetNNReductionFunctor::run()" << std::endl;
 
+  // Double sorted[32];
+  std::array<Double, 32> sorted; 
 
-    // // load argument
-    // addr_t addr;
-    // dequeue_data ( *chan_arg, addr );
+  for (int i = 0; i < 16; ++i ) {
+        Block<16> tmp;
+        dequeue_data ( *_chan_input, tmp ); // 0
 
-    // // send load request
-    // enqueue_req ( *chan_req, REQTYPE_LD, sizeof (uint64_t), addr );
+        #pragma unroll yes
+        for ( int j = 0; j < 2; ++j ) {
+            Double din;
+            unpack ( tmp, j, din );
+            sorted[i*2+j] = din;
+        }
+  }
+  
+  std::sort(sorted.begin(), sorted.end());
 
-    // // get response data
-    // uint64_t data;
-    // dequeue_data ( *chan_rdata, data );
+  for(int i = 0; i < 32; ++i){
+    std::cout << i << ": " << sorted[i] << std::endl;
+  }
 
-    // do some computation
+  for (int j = 0; j < 4; ++j)
+  {
+    Block<64> tmp;
+    for(int i = 0; i < 8; ++ i)
+      {
+        pack ( tmp, i,  sorted[j * 4 + i]);
+      }
+    enqueue_data ( *_chan_wdata, tmp );                    // 1
+    enqueue_req ( *_chan_req, REQTYPE_ST, 64, _out_addr + j * 64 ); // 2
+  }
 
-    uint64_t data = 666666666;
-
-    // send store request
-    enqueue_data ( *_chan_wdata, data ); // 0 
-    enqueue_req ( *_chan_req, REQTYPE_ST, sizeof (uint64_t), _out_addr ); // 1
-
+  // // send store request
+  // enqueue_data ( *_chan_wdata, tmp ); // 0 
+  // enqueue_req ( *_chan_req, REQTYPE_ST, 64, _out_addr ); // 1
 
   std::cout << " ---------- _out_addr: " << _out_addr << std::endl;
-
-  // Double tmp[1];
-  // kernel(*_chan_input, _result, tmp[0]);
-  // _result = tmp[0];
 }
 
 void DuetNNReductionFunctor::finishup() {

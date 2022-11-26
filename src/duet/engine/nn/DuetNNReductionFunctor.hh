@@ -43,7 +43,7 @@ class DuetNNReductionFunctor : public DuetFunctor {
   chan_data_t* _chan_input;
   chan_req_t * _chan_req;
   chan_data_t* _chan_wdata;
-  addr_t _out_addr;
+  uint64_t _out_addr;
   // Double _result;
 
  protected:
