@@ -5,14 +5,13 @@
 namespace gem5 {
 namespace duet {
 
-class DuetNNHavComputeLane : public DuetPipelinedLane
-{
-protected:
-    DuetFunctor * new_functor () override final;
+class DuetNNHavComputeLane : public DuetPipelinedLane {
+ protected:
+  DuetFunctor* new_functor() override final;
 
-public:
-    DuetNNHavComputeLane ( const DuetPipelinedLaneParams & p );
+ public:
+  DuetNNHavComputeLane(const DuetPipelinedLaneParams& p);
 };
 
-}   // namespace duet
-}   // namespace gem5
+}  // namespace duet
+}  // namespace gem5

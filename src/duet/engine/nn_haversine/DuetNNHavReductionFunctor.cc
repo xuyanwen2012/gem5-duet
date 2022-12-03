@@ -18,6 +18,8 @@ void DuetNNHavReductionFunctor::run() {
   Double tmp[1];
   kernel(*_chan_input, _result, tmp[0]);
   _result = tmp[0];
+
+  // std::cout << "DuetNNHavReductionFunctor::run(): " << _result << std::endl;
 }
 
 void DuetNNHavReductionFunctor::finishup() {

@@ -1,5 +1,4 @@
 #include "duet/engine/nn_haversine/DuetNNHavEngine.hh"
-
 namespace gem5 {
 namespace duet {
 
@@ -20,7 +19,7 @@ unsigned DuetNNHavEngine::get_max_stats_waittime() const { return 5000; }
 unsigned DuetNNHavEngine::get_max_stats_exectime() const { return 2000; }
 
 bool DuetNNHavEngine::handle_softreg_write(DuetEngine::softreg_id_t softreg_id,
-                                        uint64_t value) {
+                                           uint64_t value) {
   if (softreg_id < num_softreg_per_caller || softreg_id >= get_num_softregs())
     return true;
 
@@ -51,9 +50,8 @@ bool DuetNNHavEngine::handle_softreg_write(DuetEngine::softreg_id_t softreg_id,
 }
 
 bool DuetNNHavEngine::handle_softreg_read(DuetEngine::softreg_id_t softreg_id,
-                                       uint64_t& value) {
-  if (softreg_id < num_softreg_per_caller
-        || softreg_id >= get_num_softregs()) {
+                                          uint64_t& value) {
+  if (softreg_id < num_softreg_per_caller || softreg_id >= get_num_softregs()) {
     value = 0;
     return true;
   }
@@ -80,7 +78,7 @@ bool DuetNNHavEngine::handle_softreg_read(DuetEngine::softreg_id_t softreg_id,
 
     case 4:  // result
       value = get_constant<uint64_t>(caller_id, "result");
-      set_constant(caller_id, "result", double(999999.f));
+      set_constant(caller_id, "result", double(999999999999.f));
       set_constant<uint64_t>(caller_id, "cnt", 0);
       return true;
 
