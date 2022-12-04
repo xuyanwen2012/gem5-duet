@@ -1,5 +1,4 @@
 #pragma once
-// #include <iostream>
 
 #ifdef __DUET_HLS
 #include "hls/functor.hh"

@@ -20,7 +20,7 @@ class DuetNNHavComputeLane (DuetPipelinedLane):
 
     transition_from_stage   = [0]
     transition_to_stage     = [1]
-    transition_latency      = [65]
+    transition_latency      = [186]
     interval                = 1
 
 class DuetNNHavReductionLane (DuetSimpleLane):

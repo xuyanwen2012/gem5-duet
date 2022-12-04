@@ -22,7 +22,7 @@ class BatchedBarnesComputeLane (DuetPipelinedLane):
 
     transition_from_stage = [0]
     transition_to_stage = [1]
-    transition_latency = [65]
+    transition_latency = [128]
     interval = 1
 
 
