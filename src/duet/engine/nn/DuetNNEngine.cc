@@ -119,7 +119,6 @@ void DuetNNEngine::init() {
   for (DuetFunctor::caller_id_t caller_id = 0; caller_id < get_num_callers();
        ++caller_id) {
     set_constant<uint64_t>(caller_id, "cnt", 0);
-    // set_constant(caller_id, "result", double(999999.f));
   }
 }
 

@@ -30,16 +30,22 @@ void DuetNNReductionFunctor::run() {
   // Double sorted[32];
   std::array<Double, 32> sorted;
 
+  std::cout << "111111111111111111111111111" << std::endl;
+
   for (int i = 0; i < 16; ++i) {
     Block<16> tmp;
     dequeue_data(*_chan_input, tmp);  // 0
 
-#pragma unroll yes
+    std::cout << "2222222222222222222222" << std::endl;
+
+    // #pragma unroll yes
     for (int j = 0; j < 2; ++j) {
       Double din;
       unpack(tmp, j, din);
       sorted[i * 2 + j] = din;
     }
+
+    std::cout << "33333333333333333333333" << std::endl;
   }
 
   std::sort(sorted.begin(), sorted.end());
@@ -76,20 +82,12 @@ void DuetNNReductionFunctor::run() {
   enqueue_data(*_chan_wdata, tmp4);                             // 7
   enqueue_req(*_chan_req, REQTYPE_ST, 64, _out_addr + 3 * 64);  // 8
 
-  // for (int j = 0; j < 4; ++j) {
-  //   Block<64> tmp;
-  //   for (int i = 0; i < 8; ++i) {
-  //     pack(tmp, i, sorted[j * 4 + i]);
-  //   }
-  //   enqueue_data(*_chan_wdata, tmp);                              // 1
-  //   enqueue_req(*_chan_req, REQTYPE_ST, 64, _out_addr + j * 64);  // 2
-  // }
-
-  // // send store request
-  // enqueue_data ( *_chan_wdata, tmp ); // 0
-  // enqueue_req ( *_chan_req, REQTYPE_ST, 64, _out_addr ); // 1
-
   std::cout << " ---------- _out_addr: " << _out_addr << std::endl;
+
+  // make sure all stores are committed into the memory system
+  for (int i = 0; i < 16; ++i) {
+    dequeue_token(*_chan_input);
+  }
 }
 
 void DuetNNReductionFunctor::finishup() {
