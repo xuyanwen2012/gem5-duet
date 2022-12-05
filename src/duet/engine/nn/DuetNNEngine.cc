@@ -64,8 +64,7 @@ bool DuetNNEngine::handle_softreg_write(DuetEngine::softreg_id_t softreg_id,
 
 bool DuetNNEngine::handle_softreg_read(DuetEngine::softreg_id_t softreg_id,
                                        uint64_t& value) {
-  if (softreg_id < num_softreg_per_caller
-        || softreg_id >= get_num_softregs()) {
+  if (softreg_id < num_softreg_per_caller || softreg_id >= get_num_softregs()) {
     value = 0;
     return true;
   }
